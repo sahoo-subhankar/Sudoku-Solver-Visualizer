@@ -9,7 +9,8 @@
 - Current Maintainer
 - License
 
-###Introduction
+### Introduction
+
 Play the popular japanese puzzle game sudoku and visualize the solution using the backtracking algorithm
 
 
