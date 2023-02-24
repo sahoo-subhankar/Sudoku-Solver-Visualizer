@@ -41,4 +41,4 @@ to discuss what you would like to change.
 
 ### License
 
-- [MIT]()
+- [MIT](https://github.com/sahoo-subha/Sudoku_Puzzle_Solver_Visualizer/blob/main/LICENSE)
