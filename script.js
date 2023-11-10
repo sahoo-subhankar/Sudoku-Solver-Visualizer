@@ -5,6 +5,7 @@ var speedInt;
 var solution = null;
 var inProgress = false;
 
+// Function to convert the HTML structure of the Sudoku board to a 2D array of DOM elements
 const grabGrid = () => {
   let grid = [];
   for (let row = 0; row < 9; row++) {
@@ -18,11 +19,13 @@ const grabGrid = () => {
   return grid;
 };
 
+
 grid = grabGrid();
 algorithm = "algorithm-x";
 speed = "Fast";
 speedInt = 3;
 
+// Function to clear the Sudoku grid
 const clearGrid = () => {
   if (inProgress) {
     showAlert("Animation In Progress.", "danger");
@@ -37,31 +40,40 @@ const clearGrid = () => {
   solution = null;
 };
 
+// Event listener for the "Clear" button
 const clearGridBtn = document.getElementById("clearBtn");
 clearGridBtn.addEventListener("click", clearGrid);
 
+
+// Function to generate a Sudoku puzzle
 const generatePuzzle = () => {
   if (inProgress) {
     showAlert("Animation In Progress.", "danger");
     return;
   }
-
+  // Clear the grid before generating a new puzzle
   clearGrid();
-
+  // Fill diagonal sections randomly
   fillDiagonalSectionsRandomly();
+  // Solve the puzzle using the backtracking algorithm
   backtracking(grid, 0, true);
+  // Store the solved puzzle as the solution
   solution = grid.map((row) =>
     row.map((td) => {
       return td.children[0].value;
     })
   );
+  // Delete some cells randomly to create the puzzle
   deleteRandomely();
+  // Fix the classes of the cells based on their values
   fixClasses();
 };
 
+// Event listener for the "Generate" button
 const generateBtn = document.getElementById("generateBtn");
 generateBtn.addEventListener("click", generatePuzzle);
 
+// Function to fill diagonal sections of the grid randomly
 const fillDiagonalSectionsRandomly = () => {
   let row = 0;
   let col = 0;
@@ -85,13 +97,13 @@ const fillDiagonalSectionsRandomly = () => {
         } else {
           col = col - 2;
         }
-
         row++;
       }
     }
   }
 };
 
+// Function to delete cells randomly from the puzzle
 const deleteRandomely = () => {
   let cellsToRemoveFromPuzzle = [];
   for (let i = 0; i < 80; i++) {
@@ -109,6 +121,7 @@ const deleteRandomely = () => {
   }
 };
 
+// Function to fix the classes of cells based on their values
 const fixClasses = () => {
   grid.forEach((row) =>
     row.forEach((td) => {
@@ -121,13 +134,16 @@ const fixClasses = () => {
   );
 };
 
+// Event listeners for algorithm selection
 const algorithms = document.querySelectorAll(`#algorithms ~ ul li`);
 algorithms.forEach((option) => {
   option.addEventListener("click", (e) => {
+    // Update the selected algorithm and reset the grid
     algorithm = e.target.getAttribute("data-value");
     algorithms.forEach((option) => option.classList.remove("active"));
     e.target.classList.add("active");
     console.log(algorithm);
+    // Clear the grid cells
     grid.forEach((row) =>
       row.forEach((td) => {
         if (!td.classList.contains("fixed")) {
@@ -140,9 +156,11 @@ algorithms.forEach((option) => {
   });
 });
 
+// Event listeners for menu checkboxes
 const menus = document.querySelectorAll(`nav li input[type='checkbox']`);
 menus.forEach((menu) => {
   menu.addEventListener("click", (e) => {
+    // Disable other checkboxes when one is checked
     if (e.target.checked) {
       menus.forEach((menu) => {
         if (menu !== e.target) {
@@ -153,9 +171,11 @@ menus.forEach((menu) => {
   });
 });
 
+// Event listeners for cell input
 grid.forEach((row, rowIdx) =>
   row.forEach((td, colIdx) => {
     td.children[0].addEventListener("input", (e) => {
+      // Handle input validation and feedback
       if (e.target.value == "") {
         td.className = "";
         return;
@@ -192,13 +212,15 @@ grid.forEach((row, rowIdx) =>
   })
 );
 
+// Event listeners for speed selection
 const speedBtns = document.querySelectorAll(`#speed ~ ul > li`);
 speedBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => {
+    // Update the selected speed and reset the grid
     speed = e.target.getAttribute("data-value");
     speedBtns.forEach((option) => option.classList.remove("active"));
     e.target.classList.add("active");
-
+    // Map speed to corresponding speed interval
     switch (speed) {
       case "Fast":
         speedInt = -10;
@@ -217,12 +239,15 @@ speedBtns.forEach((btn) => {
   });
 });
 
+// Event listener for the "Visualize" button
 const visualizeBtn = document.getElementById("visualizeBtn");
 visualizeBtn.addEventListener("click", () => {
+  // Check if animation is in progress
   if (inProgress) {
     showAlert("Animation in progress", "danger");
     return;
   }
+  // Clear the grid before visualization
   grid.forEach((row) =>
     row.forEach((td) => {
       if (!td.classList.contains("fixed")) {
@@ -231,7 +256,9 @@ visualizeBtn.addEventListener("click", () => {
       }
     })
   );
+  // Set animation in progress flag
   inProgress = true;
+  // Call the backtracking algorithm based on the selected algorithm type
   switch (algorithm) {
     case "backtracking":
       return backtracking(grid, speedInt);
@@ -240,6 +267,7 @@ visualizeBtn.addEventListener("click", () => {
   }
 });
 
+// Backtracking algorithm function
 const backtracking = (
   grid,
   speedInt,
@@ -307,38 +335,6 @@ const backtracking = (
   grid[nextRow][nextCol].children[0].value = "";
   animationList.push([nextRow, nextCol, "", ""]);
   return false;
-};
-
-const coverColumn = (colHeadNode) => {
-  colHeadNode.right.left = colHeadNode.left;
-  colHeadNode.left.right = colHeadNode.right;
-  let row = colHeadNode.down;
-  while (row != colHeadNode) {
-    let nextInRow = row.right;
-    while (nextInRow != row) {
-      nextInRow.up.down = nextInRow.down;
-      nextInRow.down.up = nextInRow.up;
-      nextInRow.head.size--;
-      nextInRow = nextInRow.right;
-    }
-    row = row.down;
-  }
-};
-
-const unCoverColumn = (colHeadNode) => {
-  colHeadNode.right.left = colHeadNode;
-  colHeadNode.left.right = colHeadNode;
-  let row = colHeadNode.up;
-  while (row != colHeadNode) {
-    let nextInRow = row.left;
-    while (nextInRow != row) {
-      nextInRow.up.down = nextInRow;
-      nextInRow.down.up = nextInRow;
-      nextInRow.head.size++;
-      nextInRow = nextInRow.left;
-    }
-    row = row.up;
-  }
 };
 
 const isRowValid = (grid, rowIdx) => {
@@ -416,38 +412,6 @@ const findNextEmpty = (grid, row, col) => {
       }
     }
   }
-};
-
-const findNextBest = (grid, row, col) => {
-  let leastChoices = 100;
-  let result = null;
-  for (let currentRow = 0; currentRow < grid.length; currentRow++) {
-    for (let currentCol = 0; currentCol < grid[row].length; currentCol++) {
-      if (
-        !grid[currentRow][currentCol].classList.contains("fixed") &&
-        !grid[currentRow][currentCol].children[0].value
-      ) {
-        let currentCellChoices = calculateChoices(currentRow, currentCol, grid);
-        if (currentCellChoices.length < leastChoices) {
-          result = [currentRow, currentCol, currentCellChoices];
-          leastChoices = currentCellChoices.length;
-        }
-      }
-    }
-  }
-  return result;
-};
-
-const calculateChoices = (row, col, grid) => {
-  let choices = [];
-  for (let choice = 1; choice <= 9; choice++) {
-    grid[row][col].children[0].value = choice;
-    if (isCellValid(row, col, grid)) {
-      choices.push(choice);
-    }
-  }
-  grid[row][col].children[0].value = "";
-  return choices;
 };
 
 const animate = (animationList, speedInt) => {
