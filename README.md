@@ -1,4 +1,4 @@
-# Sudoku_Solver_Visualizer
+# Sudoku-Solver-Visualizer
 
 ### Introduction
 
